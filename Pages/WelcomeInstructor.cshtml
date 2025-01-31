@@ -8,4 +8,35 @@
 
 <p>Instructor ID: @Model.InstructorId</p>
 
+<h2>Your Classes</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Number</th>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Capacity</th>
+            <th>Meeting Time</th>
+            <th>Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.Courses)
+        {
+            <tr>
+                <td>@course.CourseNumber</td>
+                <td>@course.Name</td>
+                <td>@course.Credits</td>
+                <td>@course.Capacity</td>
+                <td>@course.MeetingTime</td>
+                <td>@course.Location</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a asp-page="/Courses/Create" asp-route-id="@Model.InstructorId">Create New Class</a>
+</p>
+
 <a asp-page="/Index">Logout</a>

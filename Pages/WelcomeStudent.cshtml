@@ -8,4 +8,27 @@
 
 <p>Student ID: @Model.StudentId</p>
 
+<h2>Your Classes</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Number</th>
+            <th>Name</th>
+            <th>Credits</th>
+            <th>Instructor ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.Courses)
+        {
+            <tr>
+                <td>@course.CourseNumber</td>
+                <td>@course.Name</td>
+                <td>@course.Credits</td>
+                <td>@course.InstructorID</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 <a asp-page="/Index">Logout</a>

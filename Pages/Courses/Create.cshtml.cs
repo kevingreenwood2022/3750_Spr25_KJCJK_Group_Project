@@ -30,7 +30,7 @@ namespace CS3750Assignment1.Pages.Courses {
             _context.Course.Add(Course);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("./Index",new { id = InstructorID }); // Redirect back with instructor ID
+            return RedirectToPage("../WelcomeInstructor",new { id = InstructorID }); // Redirect back with instructor ID
         }
     }
 }
