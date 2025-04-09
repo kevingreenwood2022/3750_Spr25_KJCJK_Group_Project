@@ -2,10 +2,10 @@
 @model CS3750Assignment1.Pages.Registrations.DeleteModel
 
 @{
-    ViewData["Title"] = "Drop";
+    ViewData["Title"] = "Drop " + Model.CourseName + "?";
 }
 
-<h1>Drop :(</h1>
+<h1>Drop @Model.CourseName :(</h1>
 
 <h3>Are you sure you want to drop this class?</h3>
 <div>

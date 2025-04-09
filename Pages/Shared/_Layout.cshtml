@@ -100,27 +100,27 @@
                                         }
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown" style="min-width: 300px;">
-                                        @if (notifications != null)
+                                        @foreach (var n in notifications)
                                         {
-                                            @foreach (var n in notifications)
-                                            {
-                                                <li>
-                                                    @if (!n.IsSeen)
-                                                    {
-                                                        <form method="post" asp-page="/MarkSingleSeen" class="notification-form d-flex align-items-center" data-id="@n.Id">
-                                                            <button type="submit" class="dropdown-item d-flex align-items-center text-wrap bg-light border-0">
-                                                                <span class="me-2 text-danger">&#x2022;</span> @n.Message
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="dropdown-item text-muted">@n.Message</span>
-                                                    }
-                                                </li>
-                                            }
+                                            <li>
+                                                @if (!n.IsSeen)
+                                                {
+                                                    <form method="post" asp-page="/MarkSingleSeen" class="notification-form d-flex align-items-center" data-id="@n.Id">
+                                                        <button type="submit" class="dropdown-item d-flex align-items-center text-wrap bg-light border-0">
+                                                            <span class="me-2 text-danger">&#x2022;</span> @n.Message
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="dropdown-item text-muted">@n.Message</span>
+                                                }
+                                            </li>
                                         }
-                                        
+
+
+
+
                                     </ul>
                                 </li>
                             }

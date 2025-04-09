@@ -9,11 +9,7 @@
     <h2>Edit Course</h2>
     <form method="post">
         <input type="hidden" asp-for="Course.Id" />
-
-        <div class="mb-3">
-            <label class="form-label">Instructor ID</label>
-            <input asp-for="Course.InstructorID" class="form-control" readonly />
-        </div>
+        <input type="hidden" asp-for="Course.InstructorID" />
 
         <div class="mb-3">
             <label class="form-label">Course Name</label>

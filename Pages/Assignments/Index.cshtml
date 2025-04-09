@@ -15,7 +15,7 @@
             {
                 if (currentValue != null)
                 {
-                    console.log(currentValue);
+                    //console.log(currentValue);
                     google.charts.load("current", {packages:['corechart']});
                     google.charts.setOnLoadCallback(drawChart);
                     function drawChart() {
@@ -49,12 +49,42 @@
 
         });
     </script>
+    <script type="text/javascript">
+        google.charts.load("current", {packages:['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+            ["Data Point", "Grade", {role: 'style'}],
+            ["Low Grade", @Model.CourseLow, 'red'],
+            ["High Grade", @Model.CourseHigh, 'green'],
+            ["Mean Grade", @Model.CourseAverage, 'grey'],
+            ["Your Grade", @Model.CourseGrade, 'blue']
+            ]);
+
+            var options = {
+            title: "Course Grade Data",
+            width: 600,
+            height: 300,
+            bar: {groupWidth: "90%"},
+            legend: { position: "none" },
+            };
+
+            var chart = new google.visualization.ColumnChart(document.getElementById("GradeChart"));
+            chart.draw(data, options);
+        }
+    </script>
+
+    
 </head>
 
 @if (!Model.IsInstructor)
 {
-    <h3>Course Grade: @Model.letterGrade</h3>
+    
+
+    <h3>Course Grade: @Model.CourseGrade - @Model.letterGrade</h3>
     <h4>Overall Score: @Model.studentFinalGrade / @Model.possibleTotalGrade<br/><br/></h4>
+    <div id="GradeChart"></div>
 }
 
 <h1>Assignments</h1>

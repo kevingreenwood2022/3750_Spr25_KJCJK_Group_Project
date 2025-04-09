@@ -11,6 +11,7 @@ using static CS3750Assignment1.Pages.Assignments.IndexModel;
 using static CS3750Assignment1.Pages.Registrations.IndexModel;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Internal;
+using CS3750Assignment1.Pages.Courses;
 
 namespace CS3750Assignment1.Pages.Assignments
 {
@@ -31,6 +32,12 @@ namespace CS3750Assignment1.Pages.Assignments
         public int CourseID { get; private set; }
         public bool IsInstructor { get; private set; }
         public HashSet<int> submissions { get; private set; } = new HashSet<int>();
+        public double CourseHigh { get; private set; } = default!;
+        public double CourseLow { get; private set; } = default!;
+        public double CourseAverage { get; private set; } = default!;
+        public double CourseGrade { get; private set; } = default!;
+
+        public List<double> CourseStudentGrades { get; private set; }
 
         [BindProperty]
         public int studentFinalGrade { get; set; }
@@ -84,6 +91,82 @@ namespace CS3750Assignment1.Pages.Assignments
             // Check if student
             if (!IsInstructor)
             {
+                
+                //var enrolledStudents = _context.Registration.Where(r => r.CourseID == CourseID).OrderBy(r => r.StudentID).ToList();
+                List<int> studentIDs = _context.Registration.Where(r => r.CourseID == CourseID).OrderBy(r => r.StudentID).Select(r => r.StudentID).ToList();//new List<int>();
+                List<int> assignmentIDs = assignmentList.Select(a => a.Id).ToList();
+                //enrolledStudents.ForEach(s => studentIDs.Add(s.StudentID)); //should have same count as enrolledStudents
+                //var students = await _context.Account.Where(a => studentIDs.Contains(a.Id) && a.AccountRole == "Student").OrderBy(a => a.Id).ToListAsync();
+                //these two lists should be ordered in the same way as they will be ordered by the student ID
+
+
+                //using list of enrolled students, get their grades and compile a course score for each student
+                CourseStudentGrades = new List<Double>();
+
+                for (int i = 0; i < studentIDs.Count; i++)
+                {
+                    //iterate through enrolledStudents, grabbing grades
+                    var studentGrades = await _context.Submission.Where(s => s.PointsEarned != null && s.StudentID == studentIDs[i] && assignmentIDs.Contains(s.AssignmentID)).OrderBy(s => s.AssignmentID).Select(s => s.PointsEarned).ToListAsync();
+                    var potentialStudentGrades = (from submission in _context.Submission
+                                                  join assignment in _context.Assignment on submission.AssignmentID equals assignment.Id
+                                                  where submission.PointsEarned != null && submission.StudentID == studentIDs[i] && assignmentIDs.Contains(assignment.Id)
+                                                  orderby assignment.Id
+                                                  select assignment.MaxPoints).ToList();
+                    int totalPointsEarned = 0;
+                    int totalPotentialPoints = 0;
+                    for (int x = 0; x < studentGrades.Count; x++)
+                    {
+                        //Console.WriteLine(studentGrades[x]);
+                        if (studentGrades[x] != null)
+                            totalPointsEarned += (int)studentGrades[x];
+
+                        //Console.WriteLine(potentialStudentGrades[x]);
+                        if (potentialStudentGrades[x] != null)
+                            totalPotentialPoints += (int)potentialStudentGrades[x];
+                    }
+
+                    
+
+                    double grade = ((totalPointsEarned / (totalPotentialPoints * 1.00)) * 100.00);
+
+                    if (!double.IsNaN(grade))
+                    {
+                        CourseStudentGrades.Add(grade);
+                        //Console.WriteLine("Score for sID: " + studentIDs[i] + " in cID: " + CourseID + " - " + grade);
+                    }
+
+                    if (studentIDs[i] == userId)
+                    {
+                        if (!double.IsNaN(grade))
+                            CourseGrade = grade;
+                        //studentFinalGrade = totalPointsEarned;
+                        //possibleTotalGrade = totalPotentialPoints;
+                    }
+
+                }
+
+                CourseLow = double.MaxValue;
+                CourseHigh = 0;
+                double courseRunningTotal = 0;
+                for (int i = 0; i < CourseStudentGrades.Count; i++)
+                {
+                    Console.WriteLine(CourseStudentGrades[i]);
+                    if (CourseStudentGrades[i] > CourseHigh)
+                    {
+                        CourseHigh = CourseStudentGrades[i];
+                    }
+                    if (CourseStudentGrades[i] < CourseLow)
+                    {
+                        CourseLow = CourseStudentGrades[i];
+                    }
+
+                    courseRunningTotal += CourseStudentGrades[i];
+                    //Console.WriteLine(courseRunningTotal);
+                }
+
+                //Console.WriteLine(CourseStudentGrades.Count);
+                CourseAverage = courseRunningTotal / CourseStudentGrades.Count;
+
                 // Get list of submissions
                 // LINQ JOIN
                 var submissionList = (from a in _context.Assignment
@@ -125,7 +208,7 @@ namespace CS3750Assignment1.Pages.Assignments
 
                 if (possibleTotalGrade > 0)
                 {
-                    float pointPercent = studentFinalGrade / possibleTotalGrade;
+                    double pointPercent = (studentFinalGrade / (possibleTotalGrade * 1.00));
                     if (pointPercent >= 1)
                         letterGrade = "A+";
                     else if (pointPercent >= 0.94)
@@ -149,15 +232,27 @@ namespace CS3750Assignment1.Pages.Assignments
                     else if (pointPercent >= 0.64)
                         letterGrade = "D";
                     else
-                        letterGrade = "F";
+                        letterGrade = "E";
                 }
                 else
                     letterGrade = "NA";
+
+                
 
                 // Finalize view data.
                 SubmittedAssignments = await submissionList.ToListAsync();
 
                 SubmittedAssignmentData = new AssignmentData[SubmittedAssignments.Count()];
+
+                //Final data for creating overall grade comparison
+                CourseLow = Math.Round(CourseLow, 2, MidpointRounding.AwayFromZero);
+                CourseHigh = Math.Round(CourseHigh, 2, MidpointRounding.AwayFromZero);
+                CourseAverage = Math.Round(CourseAverage, 2, MidpointRounding.AwayFromZero);
+                CourseGrade = Math.Round(CourseGrade, 2, MidpointRounding.AwayFromZero);
+                
+
+
+
                 int currentIndex = 0;
 
                 //go through the submission list and get the low, high, and mean scores for those assignments

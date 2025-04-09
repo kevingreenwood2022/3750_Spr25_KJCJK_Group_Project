@@ -1,13 +1,13 @@
 ﻿@page
 @model CS3750Assignment1.Pages.Submissions.SubmitAssignmentModel
 @{
-    ViewData["Title"] = "Submit Assignment";
+    ViewData["Title"] = "Submit Assignment - " + Model.Assignment.Title;
 }
 
 <div class="container mt-4">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h2 class="mb-0">Submit Assignment</h2>
+            <h2 class="mb-0">Submit Assignment - @Model.Assignment.Title</h2>
         </div>
         <div class="card-body">
             @if (Model.SubmissionType.Trim().Equals("Text_Entry")){

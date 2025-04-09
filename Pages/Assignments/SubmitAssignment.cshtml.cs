@@ -50,7 +50,9 @@ namespace CS3750Assignment1.Pages.Submissions
                 {
                     Id = a.Id,
                     CourseID = a.CourseID,
-                    AcceptedFileTypes = a.AcceptedFileTypes
+                    AcceptedFileTypes = a.AcceptedFileTypes,
+                    Title = a.Title
+
                 })
                 .FirstOrDefaultAsync();
 #pragma warning restore CS8601 // Possible null reference assignment.

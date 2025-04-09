@@ -48,28 +48,9 @@ namespace CS3750Assignment1.Pages.Assignments
 
             try
             {
-                CreateAssignment(courseID, Assignment.Title, Assignment.MaxPoints, DateOnly.Parse(Assignment.DueDate), DueTime, submissionType);
+                CreateAssignment(courseID, Assignment.Title, Assignment.Description, Assignment.MaxPoints, DateOnly.Parse(Assignment.DueDate), DueTime, submissionType);
 
-                // Save the assignment to generate its ID
-                await _context.SaveChangesAsync();
-
-                // ✅ AFTER assignment is saved, notify students in the course
-                var studentIds = _context.Registration
-                    .Where(r => r.CourseID == courseID)
-                    .Select(r => r.Id)
-                    .ToList();
-
-                foreach (var studentId in studentIds)
-                {
-                    _context.Notification.Add(new Notification
-                    {
-                        AccountId = studentId,
-                        Message = $"A new assignment \"{Assignment.Title}\" has been posted.",
-                        IsSeen = false,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-
+                // Save the assignment and generated notifications.
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -81,7 +62,7 @@ namespace CS3750Assignment1.Pages.Assignments
             return RedirectToPage("./Index");
         }
 
-        public void CreateAssignment(int courseID, string title, int points, DateOnly dueDate, string dueTime, string submissionType)
+        public void CreateAssignment(int courseID, string title, string? description, int points, DateOnly dueDate, string dueTime, string submissionType)
         {
             Assignment assignment = new Assignment();
 
@@ -96,6 +77,9 @@ namespace CS3750Assignment1.Pages.Assignments
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("No Assignment Title Provided.");
             assignment.Title = title;
+
+            // Description can be null here.
+            assignment.Description = description;
 
             if (points <= 0)
                 throw new ArgumentException("No Point Value Provided.");
@@ -114,7 +98,6 @@ namespace CS3750Assignment1.Pages.Assignments
             assignment.AcceptedFileTypes = submissionType;
 
             _context.Assignment.Add(assignment);
-            _context.SaveChanges();
 
             // Create notifications for all students registered in this course
             var registeredStudents = _context.Registration
@@ -134,11 +117,8 @@ namespace CS3750Assignment1.Pages.Assignments
                 _context.Notification.Add(note);
             }
 
-            // Save all notifications
-            _context.SaveChanges();
-
             // Also bind it to the page model so it's accessible for notification
-            Assignment = assignment;
+            // Assignment = assignment;
         }
     }
 }

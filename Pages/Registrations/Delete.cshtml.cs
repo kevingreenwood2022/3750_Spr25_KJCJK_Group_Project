@@ -22,6 +22,8 @@ namespace CS3750Assignment1.Pages.Registrations
         [BindProperty]
         public Registration Registration { get; set; } = default!;
 
+        public string CourseName { get; set; }
+
 
         // Course ID is passed in here, not the registration ID.
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -36,6 +38,10 @@ namespace CS3750Assignment1.Pages.Registrations
             if (registration is not null)
             {
                 Registration = registration;
+
+                CourseName = _context.Course.Where(c => c.Id == registration.CourseID).Select(c => c.Name).ToArray()[0];
+
+
 
                 return Page();
             }
